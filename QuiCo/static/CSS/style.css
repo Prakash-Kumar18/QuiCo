@@ -1,0 +1,7 @@
+body{
+    background-image: linear-gradient(to bottom,rgb(159, 198, 230),white) ;
+    background-repeat: no-repeat;
+}
+.header-logo{
+    background-color: azure;
+}
