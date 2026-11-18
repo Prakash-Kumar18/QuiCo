@@ -128,3 +128,4 @@ function renderList() {
 
 function changeStatus(i, s) { complaints[i].status = s; saveData(); renderList(); }
 function deleteComplaint(i) { if (confirm("should I delete it?")) { complaints.splice(i, 1); saveData(); renderList(); } }
+//The End//
