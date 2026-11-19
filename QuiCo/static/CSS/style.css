@@ -3,6 +3,7 @@ body { background:#eef1f6; color:#1a1a1a; }
 .hidden { display:none !important; }
 input, select, textarea { outline:none; }
 input:focus, select:focus, textarea:focus { border-color:#0b2a5b !important; }
+a { text-decoration: none; color:inherit; }
 
 /* HEADER */
 header { background:#0b2a5b; color:#fff; padding:14px 22px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; z-index:20; box-shadow:0 4px 12px rgba(0,0,0,.15); }

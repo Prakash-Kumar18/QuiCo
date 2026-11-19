@@ -5,33 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    {% comment %} {% static 'style.css' %} {% endcomment %}
     <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
    
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginScreen" class="login-wrap">
-  <div class="login-card">
-    <div class="logo">Qui<span>Co</span></div>
-    <p class="sub">BENNETT UNIVERSITY<br>Complaint Portal</p>
-    <p class="login-desc">Login with your Bennett ID and raise a complaint.</p>
-    <input id="loginEmail" type="email" placeholder="Email - name@bennett.edu.in">
-    <input id="loginPass" type="password" placeholder="Password">
-    <button class="btn-dark" onclick="doLogin()">Login with Bennett ID →</button>
-    <div class="hint">Demo Login: <b>test@bennett.edu.in</b> / Any password</div>
-    <p id="loginError" class="error"></p>
-  </div>
-</div>
 
 <!-- APP -->
-<div id="app" class="hidden">
+<div id="app">
   <header>
     <div class="brand"><b>Qui<span>Co</span></b><small>BENNETT UNIVERSITY</small></div>
     <div class="header-right">
-      <span id="userName">Hi, Student</span>
-      <button class="btn-yellow" onclick="doLogout()">Logout</button>
+      <span>Hi, {{ username }}</span>
+      <a class="btn-yellow" href="{% url 'logout' %}">Logout</a>
     </div>
   </header>
 
@@ -41,7 +27,7 @@
         <span class="pill">● Live Portal • Bennett University</span>
         <h2>Any Problem?<br>Complaint Here, We are always there.</h2>
         <p>Mess, Electricity, Hostel, Wi-Fi — All in one place. track with your complaint ID.</p>
-        <button class="btn-dark" onclick="scrollToForm()">+ Raise a Complaint</button>
+        <a class="btn-dark" href="#formBox">+ Raise a Complaint</a>
       </div>
       <div class="hero-card">
         <b>How it works?</b>
@@ -51,79 +37,111 @@
       </div>
     </section>
 
-    <section class="stats">
-      <div class="stat"><b id="totalCount">0</b><span>Total Complaints</span></div>
-      <div class="stat"><b id="pendingCount">0</b><span>Pending / In Progress</span></div>
-      <div class="stat"><b id="resolvedCount">0</b><span>Resolved</span></div>
-    </section>
+  <section class="stats">
+    <div class="stat"><b>{{ total }}</b><span>Total Complaints</span></div>
+    <div class="stat"><b>{{ pending }}</b><span>Pending / In Progress</span></div>
+    <div class="stat"><b>{{ resolved }}</b><span>Resolved</span></div>
+  </section>
 
     <h3 class="section-title">Select Category</h3>
     <p class="section-sub">Mention your complaint? Click on Category and form will appear.</p>
-    <div class="grid" id="categoryGrid"></div>
+    <div class="grid" id="categoryGrid">
+  {% for c in categories %}
+    <a class="card" href="?category={{ c.name|urlencode }}#formBox">
+      <div class="emoji">{{ c.emoji }}</div><b>{{ c.name }}</b><small>{{ c.desc }}</small>
+    </a>
+  {% endfor %}
+</div>
 
-    <section class="form-box" id="formBox">
-      <h3 id="formTitle">Raise a Complaint</h3>
-      <p class="form-sub">Please Fill correct details so that department can take action fastly and efficiently.</p>
-      <div class="row">
-        <div><label>Full Name *</label><input id="fName" placeholder="e.g. Aarav Sharma"></div>
-        <div><label>Enrollment ID *</label><input id="fEnroll" placeholder="e.g. E22CSE045"></div>
-      </div>
-      <div class="row">
-        <div><label>Category</label>
-          <select id="fCategory">
-            <option value="Mess / Food">Mess / Food</option>
-            <option value="Electricity">Electricity</option>
-            <option value="Hostel / Room">Hostel / Room</option>
-            <option value="Wi-Fi / IT">Wi-Fi / IT</option>
-            <option value="Water">Water</option>
-            <option value="Academics">Academics</option>
-            <option value="Transport / Bus">Transport / Bus</option>
-            <option value="Others">Others</option>
-          </select>
-        </div>
-        <div><label>Urgency</label>
-          <select id="fUrgency">
-            <option value="Low">Low</option>
-            <option value="Medium" selected>Medium</option>
-            <option value="High">High</option>
-          </select>
-        </div>
-      </div>
-      <div class="row">
-        <div><label>Hostel / Block</label><input id="fBlock" placeholder="e.g. A2"></div>
-        <div><label>Room No.</label><input id="fRoom" placeholder="e.g. 304"></div>
-      </div>
-      <div><label>Complaint Title *</label><input id="fTitle" placeholder="e.g. less hygiene in mess"></div>
-      <div><label>Details *</label><textarea id="fDesc" placeholder="from when there is issue,where,in details....."></textarea></div>
-      <div><label>Photo (Optional)</label><input id="fPhoto" type="file" accept="image/*"></div>
-      <div class="btn-row">
-        <button class="btn-dark" onclick="submitComplaint()">Submit Complaint →</button>
-        <button class="btn-ghost" onclick="clearForm()">Clear</button>
-      </div>
-      <p id="formMsg" class="success"></p>
-    </section>
+<section class="form-box" id="formBox">
+  <h3 id="formTitle">Raise a Complaint{% if current != "All" %} — {{ current }}{% endif %}</h3>
+  <p class="form-sub">Please Fill correct details so that department can take action fastly and efficiently.</p>
 
-    <section class="list-box">
-      <h3>Track Complaints</h3>
-      <p class="form-sub">Search your complaint Id or Filter by Categories.</p>
-      <input id="searchId" placeholder="Search by ID - e.g. QUICO-1023 or Title ..." oninput="renderList()">
-      <div class="filter-row" id="filterRow">
-        <button class="active" onclick="setFilter('All',this)">All</button>
-        <button onclick="setFilter('Mess / Food',this)">Mess</button>
-        <button onclick="setFilter('Electricity',this)">Electricity</button>
-        <button onclick="setFilter('Hostel / Room',this)">Hostel</button>
-        <button onclick="setFilter('Wi-Fi / IT',this)">Wi-Fi</button>
-        <button onclick="setFilter('Water',this)">Water</button>
-        <button onclick="setFilter('Academics',this)">Academics</button>
-        <button onclick="setFilter('Transport / Bus',this)">Transport</button>
-        <button onclick="setFilter('Others',this)">Others</button>
+  {% for m in messages %}<p class="success">{{ m }}</p>{% endfor %}
+
+  <form method="post" action="{% url 'submit' %}" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+      <div><label>Full Name *</label><input name="name" placeholder="e.g. Aarav Sharma" required></div>
+      <div><label>Enrollment ID *</label><input name="enroll" placeholder="e.g. E22CSE045" required></div>
+    </div>
+    <div class="row">
+      <div><label>Category</label>
+        <select name="category">
+          {% for c in categories %}
+            <option value="{{ c.name }}" {% if c.name == current %}selected{% endif %}>{{ c.name }}</option>
+          {% endfor %}
+        </select>
       </div>
-      <div id="complaintList"></div>
-    </section>
+      <div><label>Urgency</label>
+        <select name="urgency">
+          <option value="Low">Low</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+    </div>
+    <div class="row">
+      <div><label>Hostel / Block</label><input name="block" placeholder="e.g. A2"></div>
+      <div><label>Room No.</label><input name="room" placeholder="e.g. 304"></div>
+    </div>
+    <div><label>Complaint Title *</label><input name="title" placeholder="e.g. less hygiene in mess" required></div>
+    <div><label>Details *</label><textarea name="desc" placeholder="from when there is issue, where, in details....." required></textarea></div>
+    <div><label>Photo (Optional)</label><input name="photo" type="file" accept="image/*"></div>
+    <div class="btn-row">
+      <button type="submit" class="btn-dark">Submit Complaint →</button>
+      <button type="reset" class="btn-ghost">Clear</button>
+    </div>
+  </form>
+</section>
+
+  <section class="list-box">
+  <h3>Track Complaints</h3>
+  <p class="form-sub">Search your complaint Id or Filter by Categories.</p>
+
+  <form method="get">
+    <input name="q" value="{{ q }}" placeholder="Search by ID - e.g. QUICO-1023 or Title ...">
+    <input type="hidden" name="category" value="{{ current }}">
+  </form>
+
+  <div class="filter-row">
+    <a href="?category=All"><button type="button" class="{% if current == 'All' %}active{% endif %}">All</button></a>
+    {% for c in categories %}
+      <a href="?category={{ c.name|urlencode }}"><button type="button" class="{% if current == c.name %}active{% endif %}">{{ c.name }}</button></a>
+    {% endfor %}
+  </div>
+
+  <div id="complaintList">
+    {% for c in complaints %}
+      <div class="complaint">
+        <div style="display:flex; justify-content:space-between; gap:10px;">
+          <b>{{ c.title }}</b><span class="meta">{{ c.code }}</span>
+        </div>
+        <p>{{ c.desc }}</p>
+        {% if c.photo %}<img src="{{ c.photo.url }}" alt="" style="max-width:200px; border-radius:8px;">{% endif %}
+        <div class="meta">{{ c.name }} • {{ c.enroll }} • {{ c.category }} • Block {{ c.block|default:"-" }} Room {{ c.room|default:"-" }} • {{ c.created|date:"d M Y" }}</div>
+        <span class="badge {{ c.status }}">{{ c.get_status_display }}</span>
+        <span class="badge {{ c.urgency }}">{{ c.urgency }} Priority</span>
+        {% if request.user.is_staff %}
+        <div>
+          <form method="post" action="{% url 'status' c.pk 'InProgress' %}" style="display:inline">
+            {% csrf_token %}<button class="small-btn">⏳ In Progress</button></form>
+          <form method="post" action="{% url 'status' c.pk 'Resolved' %}" style="display:inline">
+            {% csrf_token %}<button class="small-btn">✅ Resolved</button></form>
+          <form method="post" action="{% url 'delete' c.pk %}" style="display:inline"
+                onsubmit="return confirm('Should I delete it?')">
+            {% csrf_token %}<button class="small-btn">🗑 Delete</button></form>
+        </div>
+        {% endif %}
+      </div>
+    {% empty %}
+      <p style="color:#888; text-align:center; padding:20px;">Koi complaint nahi mili is filter me.</p>
+    {% endfor %}
+  </div>
+</section>
     <p class="footer">QuiCo • Bennett University </p>
   </main>
 </div>
 
-<script src="{% static 'JS/script.js'%}"></script>
 </body>
 </html>

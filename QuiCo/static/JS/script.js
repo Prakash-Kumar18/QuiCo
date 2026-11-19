@@ -1,4 +1,4 @@
-const categories = [
+/*const categories = [
   { name: "Mess / Food", emoji: "🍽️", desc: "Food, Hygiene, Menu" },
   { name: "Electricity", emoji: "💡", desc: "Light, Fan, Power Cut" },
   { name: "Hostel / Room", emoji: "🛏️", desc: "Bed, Washroom, Cleaning" },
@@ -127,5 +127,5 @@ function renderList() {
 }
 
 function changeStatus(i, s) { complaints[i].status = s; saveData(); renderList(); }
-function deleteComplaint(i) { if (confirm("should I delete it?")) { complaints.splice(i, 1); saveData(); renderList(); } }
+function deleteComplaint(i) { if (confirm("should I delete it?")) { complaints.splice(i, 1); saveData(); renderList(); } }*/
 //The End//

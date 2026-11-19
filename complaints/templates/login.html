@@ -1,0 +1,29 @@
+<!-- LOGIN -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+</head>
+<body>
+
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card">
+    <div class="logo">Qui<span>Co</span></div>
+    <p class="sub">BENNETT UNIVERSITY<br>Complaint Portal</p>
+    <p class="login-desc">Login with your Bennett ID and raise a complaint.</p>
+   <form method="post">
+  {% csrf_token %}
+  <input name="email" type="email" placeholder="Email - name@bennett.edu.in" required>
+  <input name="password" type="password" placeholder="Password" required>
+  <button class="btn-dark">Login with Bennett ID →</button>
+</form>
+{% for m in messages %}<p class="error">{{ m }}</p>{% endfor %}
+    <div class="hint">Demo Login: <b>test@bennett.edu.in</b> / Any password</div>
+  </div>
+</div>
+</body>
+</html>
