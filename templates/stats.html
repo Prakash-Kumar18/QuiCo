@@ -1,0 +1,41 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stats</title>
+  <link rel="stylesheet" href="{% static 'CSS/style.css' %}">
+</head>
+<body>
+<header>
+  <div class="brand"><b>Qui<span>Co</span></b><small>BENNETT UNIVERSITY</small></div>
+  <div class="header-right"><a class="btn-yellow" href="{% url 'home' %}">Back</a></div>
+</header>
+<main class="container">
+  <section class="stats">
+    {% for label, count in status_rows %}
+      <div class="stat"><b>{{ count }}</b><span>{{ label }}</span></div>
+    {% endfor %}
+  </section>
+
+  <section class="list-box">
+    <h3>Overview</h3>
+    <p class="form-sub">Total: {{ total }} complaints • Resolved: {{ resolved_percent }}%</p>
+    {% if urgent %}
+      <p class="error">Oldest urgent pending: {{ urgent.code }} - {{ urgent.title }}</p>
+    {% endif %}
+
+    <h3 style="margin-top:20px">Category Ranking</h3>
+    {% for r in ranking %}
+      <div class="complaint"><b>#{{ r.rank }} {{ r.name }}</b> <span class="meta">{{ r.count }} complaints</span></div>
+    {% empty %}
+      <p>No data yet.</p>
+    {% endfor %}
+
+    <h3 style="margin-top:20px">Blocks with complaints</h3>
+    <p class="form-sub">{{ blocks|join:", "|default:"-" }}</p>
+  </section>
+</main>
+</body>
+</html>

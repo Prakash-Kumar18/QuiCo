@@ -8,4 +8,5 @@ urlpatterns = [
     path("submit/", views.submit_complaint, name="submit"),
     path("status/<int:pk>/<str:status>/", views.change_status, name="status"),
     path("delete/<int:pk>/", views.delete_complaint, name="delete"),
+    path("stats/", views.stats_view, name="stats"),
 ]

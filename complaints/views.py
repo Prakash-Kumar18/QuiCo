@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.db.models import Q
 from django.views.decorators.http import require_POST
 from .models import Complaint
-
+from .utils import validate_complaint, clean_name, capitalize_first, build_stats, first_urgent_pending
 from functools import wraps
 
 def staff_required(view):
@@ -73,13 +73,21 @@ def home(request):
 @require_POST
 def submit_complaint(request):
     p = request.POST
-    if not all([p["name"].strip(), p["enroll"].strip(), p["title"].strip(), p["desc"].strip()]):
-        messages.error(request, "Please fill Name, Enrollment, Title and details.")
+    errors = validate_complaint(p, [c["name"] for c in CATEGORIES])
+    if errors:
+        for e in errors:
+            messages.error(request, e)
         return redirect("home")
     c = Complaint.objects.create(
-        name=p["name"], enroll=p["enroll"], category=p["category"],
-        urgency=p["urgency"], block=p["block"], room=p["room"],
-        title=p["title"], desc=p["desc"], photo=request.FILES.get("photo", ""))
+        name=clean_name(p["name"]),
+        enroll=p["enroll"].strip().upper(),
+        category=p["category"],
+        urgency=p["urgency"],
+        block=p.get("block", "").strip().upper(),
+        room=p.get("room", "").strip(),
+        title=capitalize_first(p["title"]),
+        desc=p["desc"].strip(),
+        photo=request.FILES.get("photo", ""))
     messages.success(request, f"Complaint Submitted! Your Id is: {c.code}")
     return redirect("home")
 
@@ -100,3 +108,10 @@ def change_status(request, pk, status):
 def delete_complaint(request, pk):
     get_object_or_404(Complaint, pk=pk).delete()
     return redirect("home")
+
+@login_required
+def stats_view(request):
+    complaints = Complaint.objects.order_by("created")
+    data = build_stats(complaints)
+    data["urgent"] = first_urgent_pending(complaints)
+    return render(request, "stats.html", data)
